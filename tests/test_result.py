@@ -1,5 +1,6 @@
 import asyncio
-from typing import List, Optional
+from types import TracebackType
+from typing import List, Optional, Type
 
 import pytest
 
@@ -52,7 +53,7 @@ def test_safe_decorator_sync():
 
 @pytest.mark.asyncio
 async def test_safe_decorator_async():
-    @Result.safe
+    @Result.safe_async
     async def async_divide(a: int, b: int) -> float:
         await asyncio.sleep(0.01)  # Simulate async operation
         return a / b
@@ -77,8 +78,8 @@ def test_result_traceback():
 
 def test_safe_decorator_with_complex_error():
     @Result.safe
-    def complex_operation(lst: list) -> int:
-        return lst[10] + "invalid"
+    def complex_operation(lst: list[int]) -> int:
+        return lst[10] + "invalid"  # type: ignore
 
     result = complex_operation([1, 2, 3])
     assert result.is_error()
@@ -105,7 +106,7 @@ def test_multiple_result_instances():
 
 @pytest.mark.asyncio
 async def test_safe_decorator_async_exception_handling():
-    @Result.safe
+    @Result.safe_async
     async def async_fail() -> None:
         await asyncio.sleep(0.01)
         raise RuntimeError("async error")
@@ -171,7 +172,7 @@ def test_safe_decorator_with_generator():
 
 @pytest.mark.asyncio
 async def test_safe_decorator_async_cancellation():
-    @Result.safe
+    @Result.safe_async
     async def long_operation() -> str:
         try:
             await asyncio.sleep(1)
@@ -179,7 +180,7 @@ async def test_safe_decorator_async_cancellation():
         except asyncio.CancelledError:
             raise  # Re-raise to be caught by the decorator
 
-    task = asyncio.create_task(long_operation())
+    task = asyncio.create_task(long_operation())  # type: ignore
     await asyncio.sleep(0.01)  # Give the task a chance to start
     task.cancel()
 
@@ -217,11 +218,16 @@ async def test_safe_decorator_async_context_manager():
         async def __aenter__(self):
             return self
 
-        async def __aexit__(self, exc_type, exc_val, exc_tb):
+        async def __aexit__(
+            self,
+            exc_type: Optional[Type[BaseException]],
+            exc_val: Optional[BaseException],
+            exc_tb: Optional[TracebackType],
+        ):
             if exc_type is not None:
                 return False  # Don't suppress the error
 
-    @Result.safe
+    @Result.safe_async
     async def use_resource():
         async with AsyncResource():
             raise RuntimeError("Operation failed")
