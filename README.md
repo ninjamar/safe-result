@@ -19,6 +19,20 @@ Key features:
 - Support for both synchronous and asynchronous functions
 - Built-in traceback capture for errors
 
+## Advantages Over Traditional Try/Catch
+
+Using `safe_result` offers several benefits over traditional try/catch exception handling:
+
+1. **Explicitness**: Forces error handling to be explicit rather than implicit, preventing overlooked exceptions
+2. **Type Safety**: Leverages Python's type system to ensure proper error handling at development time
+3. **Function Composition**: Makes it easier to compose functions that might fail without nested try/except blocks
+4. **Predictable Control Flow**: Code execution becomes more predictable without exception-based control flow jumps
+5. **Error Propagation**: Simplifies error propagation through call stacks without complex exception handling chains
+6. **Traceback Preservation**: Automatically captures and preserves tracebacks while allowing normal control flow
+7. **Separation of Concerns**: Cleanly separates error handling logic from business logic
+8. **API Boundaries**: Provides a clear pattern for handling errors across API boundaries
+9. **Testing**: Makes testing error conditions more straightforward since errors are just values
+
 ## Usage
 
 ### Basic Usage
@@ -61,7 +75,7 @@ if result.is_error():
 
 ### Async Functions
 
-`@Result.safe_async` is used when working with async functions:
+The `@Result.safe_async` decorator automatically wraps async functions in a Result object:
 
 ```python
 import asyncio
