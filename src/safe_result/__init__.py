@@ -29,15 +29,13 @@ class Result(Generic[T, E]):
         """Return the value or raise the error."""
         if self.error:
             raise self.error
-        assert self.value is not None
-        return self.value
+        return cast(T, self.value)
 
     def unwrap_or(self, default: T) -> T:
         """Return the value or a default if there's an error."""
         if self.error:
             return default
-        assert self.value is not None
-        return self.value
+        return cast(T, self.value)
 
     def __str__(self) -> str:
         if self.is_error():
@@ -82,6 +80,8 @@ class Result(Generic[T, E]):
                 try:
                     value = await cast(Awaitable[T], func(*args, **kwargs))
                     return Result(value=value)
+                except asyncio.CancelledError as e:
+                    return Result(error=e)
                 except Exception as e:
                     return Result(error=e)
 
