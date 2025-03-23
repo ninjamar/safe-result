@@ -1,4 +1,4 @@
-# Safe Result
+# safe-result
 
 A Python library providing a Result type for elegant error handling, inspired by Rust's Result type.
 
@@ -10,7 +10,7 @@ uv pip install "git+https://github.com/overflowy/safe-result"
 
 ## Overview
 
-Safe Result provides a `Result` type that represents either success (`value`) or failure (`error`). This allows for more explicit error handling without relying on exceptions, making your code more predictable and easier to reason about.
+`safe-result` provides a `Result` type that represents either success (`value`) or failure (`error`). This allows for more explicit error handling without relying on exceptions, making your code more predictable and easier to reason about.
 
 Key features:
 
@@ -24,14 +24,12 @@ Key features:
 Using `safe_result` offers several benefits over traditional try/catch exception handling:
 
 1. **Explicitness**: Forces error handling to be explicit rather than implicit, preventing overlooked exceptions
-2. **Type Safety**: Leverages Python's type system to ensure proper error handling at development time
-3. **Function Composition**: Makes it easier to compose functions that might fail without nested try/except blocks
-4. **Predictable Control Flow**: Code execution becomes more predictable without exception-based control flow jumps
-5. **Error Propagation**: Simplifies error propagation through call stacks without complex exception handling chains
-6. **Traceback Preservation**: Automatically captures and preserves tracebacks while allowing normal control flow
-7. **Separation of Concerns**: Cleanly separates error handling logic from business logic
-8. **API Boundaries**: Provides a clear pattern for handling errors across API boundaries
-9. **Testing**: Makes testing error conditions more straightforward since errors are just values
+2. **Function Composition**: Makes it easier to compose functions that might fail without nested try/except blocks
+3. **Predictable Control Flow**: Code execution becomes more predictable without exception-based control flow jumps
+4. **Error Propagation**: Simplifies error propagation through call stacks without complex exception handling chains
+5. **Traceback Preservation**: Automatically captures and preserves tracebacks while allowing normal control flow
+6. **Separation of Concerns**: Cleanly separates error handling logic from business logic
+7. **Testing**: Makes testing error conditions more straightforward since errors are just values
 
 ## Comparative Examples
 
@@ -224,7 +222,7 @@ if error.is_error():
 
 ### Using the Decorator
 
-The `@Result.safe` decorator automatically wraps function returns in a Result object:
+The `@Result.safe` decorator wraps function returns in a Result object:
 
 ```python
 from safe_result import Result
@@ -246,7 +244,7 @@ if result.is_error():
 
 ### Async Functions
 
-The `@Result.safe_async` decorator automatically wraps async functions in a Result object:
+The `@Result.safe_async` decorator wraps async functions in a Result object:
 
 ```python
 import asyncio
