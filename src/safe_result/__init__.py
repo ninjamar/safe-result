@@ -1,10 +1,12 @@
 import asyncio
 import traceback
 from functools import wraps
-from typing import Any, Awaitable, Callable, Generic, Optional, TypeVar, Union, cast
+from typing import Awaitable, Callable, Generic, Optional, ParamSpec, TypeVar, cast
 
 T = TypeVar("T")
 E = TypeVar("E", bound=Exception)
+P = ParamSpec("P")
+R = TypeVar("R")
 
 
 class Result(Generic[T, E]):
@@ -48,15 +50,10 @@ class Result(Generic[T, E]):
         return f"Result(value={self.value})"
 
     @staticmethod
-    def safe(
-        func: Callable[..., Union[T, Awaitable[T]]],
-    ) -> Callable[
-        ..., Union["Result[T, Exception]", Awaitable["Result[T, Exception]"]]
-    ]:
+    def safe(func: Callable[P, R]) -> Callable[P, "Result[R, Exception]"]:
         """
-        Decorator that wraps a function to return a Result.
+        Decorator that wraps a synchronous function to return a Result.
         The decorated function will never raise exceptions.
-        Works with both synchronous and asynchronous functions.
 
         Example:
             >>> @Result.safe
@@ -64,35 +61,41 @@ class Result(Generic[T, E]):
             ...     return a / b
             ...
             >>> result = divide(10, 0)  # Returns Result with ZeroDivisionError
+        """
 
-            >>> @Result.safe
+        @wraps(func)
+        def wrapper(*args: P.args, **kwargs: P.kwargs) -> "Result[R, Exception]":
+            try:
+                return Result(value=func(*args, **kwargs))
+            except Exception as e:
+                return Result(error=e)
+
+        return wrapper
+
+    @staticmethod
+    def safe_async(
+        func: Callable[P, Awaitable[R]],
+    ) -> Callable[P, Awaitable["Result[R, Exception]"]]:
+        """
+        Decorator that wraps an asynchronous function to return a Result.
+        The decorated function will never raise exceptions.
+
+        Example:
+            >>> @Result.safe_async
             ... async def async_divide(a: int, b: int) -> float:
             ...     return a / b
             ...
             >>> result = await async_divide(10, 0)  # Returns Result with ZeroDivisionError
         """
-        if asyncio.iscoroutinefunction(func):
 
-            @wraps(func)
-            async def async_wrapper(
-                *args: Any, **kwargs: Any
-            ) -> "Result[T, Exception]":
-                try:
-                    value = await cast(Awaitable[T], func(*args, **kwargs))
-                    return Result(value=value)
-                except asyncio.CancelledError as e:
-                    return Result(error=e)
-                except Exception as e:
-                    return Result(error=e)
+        @wraps(func)
+        async def wrapper(*args: P.args, **kwargs: P.kwargs) -> "Result[R, Exception]":
+            try:
+                value = await func(*args, **kwargs)
+                return Result(value=value)
+            except asyncio.CancelledError as e:
+                return Result(error=cast(E, e))
+            except Exception as e:
+                return Result(error=e)
 
-            return async_wrapper
-        else:
-
-            @wraps(func)
-            def sync_wrapper(*args: Any, **kwargs: Any) -> "Result[T, Exception]":
-                try:
-                    return Result(value=cast(T, func(*args, **kwargs)))
-                except Exception as e:
-                    return Result(error=e)
-
-            return sync_wrapper
+        return wrapper
