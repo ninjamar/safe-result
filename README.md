@@ -5,7 +5,7 @@ A Python library providing a Result type for elegant error handling, inspired by
 ## Installation
 
 ```bash
-pip install safe-result
+uv pip install "git+https://github.com/overflowy/safe-result"
 ```
 
 ## Overview
