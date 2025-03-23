@@ -15,7 +15,7 @@ Safe Result provides a `Result` type that represents either success (`value`) or
 Key features:
 
 - Type-safe result handling with generics support
-- Decorator for automatically wrapping function returns in Result objects
+- Decorators for automatically wrapping function returns in Result objects
 - Support for both synchronous and asynchronous functions
 - Built-in traceback capture for errors
 
@@ -61,13 +61,13 @@ if result.is_error():
 
 ### Async Functions
 
-The decorator works with async functions too:
+`@Result.safe_async` is used when working with async functions:
 
 ```python
 import asyncio
 from safe_result import Result
 
-@Result.safe
+@Result.safe_async
 async def async_operation(value: int) -> int:
     await asyncio.sleep(0.1)
     if value == 0:
@@ -99,26 +99,6 @@ value = result.unwrap()  # "hello"
 error_result = Result(error=ValueError("oops"))
 value = error_result.unwrap_or("default")  # "default"
 ```
-
-## API Reference
-
-### `Result[T, E]`
-
-Generic class representing either success (with value of type T) or failure (with error of type E).
-
-#### Constructor
-
-- `Result(value=None, error=None)`: Create a new Result with either a value or an error
-
-#### Methods
-
-- `is_error() -> bool`: Check if the Result contains an error
-- `unwrap() -> T`: Return the value or raise the stored error
-- `unwrap_or(default: T) -> T`: Return the value or a default if there's an error
-
-#### Class Methods
-
-- `@Result.safe`: Decorator that wraps a function to return a Result
 
 ## License
 
