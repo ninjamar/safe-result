@@ -27,6 +27,10 @@ class Result(Generic[T, E]):
         """Check if this Result contains an error."""
         return self.error is not None
 
+    def is_safe(self) -> bool:
+        """Check if this Result does not contain an error."""
+        return self.error is None
+        
     def unwrap(self) -> T:
         """Return the value or raise the error."""
         if self.error:
